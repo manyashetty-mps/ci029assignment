@@ -1,0 +1,121 @@
+1. return change 
+
+  #include <stdio.h>
+
+int main() {
+    int t,x,cost=0,rem;
+    scanf("%d",&t);
+    for(int i=0;i<t;i++){
+        scanf("%d",&x);
+        if(x%10==0){
+            cost=100-x;
+        }
+        else{ rem=x%10;
+            int ans=(x/10)*10;
+            if(rem<5)
+            cost=100-ans;
+            else
+            cost=100-(ans+10);
+        }
+        printf("%d\n",cost);
+    }
+    return 0;
+}
+2.odd sum
+  
+#include <stdio.h>
+int main() {
+	int t,a,b,c,i,as,bs,cs;
+	scanf("%d",&t);
+	for(i=0;i<t;i++)
+	{
+	    scanf("%d%d%d",&a,&b,&c);
+	    as=(a+b)%2;
+	    bs=(a+c)%2;
+	    cs=(b+c)%2;
+	    if((as!=0)||(bs!=0)||(cs!=0))
+	    printf("YES\n");
+	    else
+	    printf("NO\n");
+	}
+
+}
+3.count pairs
+
+  #include <stdio.h>
+
+long long countPairsLessThanX(int arr[], int n, int x) {
+   long long count =0;
+   int left=0,right=n-1;
+   while(left<right){
+       if(arr[left]+arr[right]<x){
+           count+=(right-left);
+           left++;
+       }else {
+           right--;
+       
+       }
+   }
+   return count;
+}
+
+int main() {
+    int n, x;
+    scanf("%d", &n);
+    int arr[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+    scanf("%d", &x);
+    printf("%lld\n", countPairsLessThanX(arr, n, x));
+    return 0;
+}
+
+4.parity check 
+
+  #include <stdio.h>
+#include <stdlib.h>
+int N;
+void sortArrayByParity(int* nums) {
+    int* result = (int*)malloc(N * sizeof(int));
+    int left = 0, right = N - 1;
+
+    for (int i = 0; i < N; i++) {
+        if (nums[i] % 2 != 0) {
+            result[left++] = nums[i];
+        } else {
+            result[right--] = nums[i];
+        }
+    }
+
+    for (int i = 0; i < (N - left) / 2; i++) {
+        int temp = result[left + i];
+        result[left + i] = result[N - 1 - i];
+        result[N - 1 - i] = temp;
+    }
+
+    for (int i = 0; i < N; i++) {
+        nums[i] = result[i];
+    }
+
+    free(result);
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    N=n;
+    int* nums = (int*)malloc(N * sizeof(int));
+    for (int i = 0; i < N; i++) {
+        scanf("%d", &nums[i]);
+    }
+
+    sortArrayByParity(nums);
+
+    for (int i = 0; i < N; i++) {
+        printf("%d ", nums[i]);
+    }
+
+    free(nums);
+    return 0;
+}

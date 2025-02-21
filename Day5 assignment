@@ -1,0 +1,236 @@
+1.
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_CALLS 10
+struct Call {
+    int callID;
+    char customerName[50];
+};
+struct CallQueue {
+    struct Call calls[MAX_CALLS];
+    int front, rear;
+};
+void initQueue(struct CallQueue *q) {
+    q->front = 0;
+    q->rear = -1;
+}
+int isEmpty(struct CallQueue *q) {
+    return (q->front > q->rear);
+}
+
+void addCall(struct CallQueue *q, int callID, const char *customerName) {
+    if (q->rear < MAX_CALLS - 1) {
+        q->rear++;
+        q->calls[q->rear].callID = callID;
+        strncpy(q->calls[q->rear].customerName, customerName, sizeof(q->calls[q->rear].customerName) - 1);
+        q->calls[q->rear].customerName[sizeof(q->calls[q->rear].customerName) - 1] = '\0';
+        printf("New Call Added:  Call %d from %s\n", callID, customerName);
+    } else {
+        printf("Queue is full! Cannot add more calls.\n");
+    }
+}
+void processCall(struct CallQueue *q) {
+    if (!isEmpty(q)) {
+        int callID = q->calls[q->front].callID;
+        char customerName[50];
+        strncpy(customerName, q->calls[q->front].customerName, sizeof(customerName));
+
+        printf("Processing Call: %d from %s\n", callID, customerName);
+        q->front++; // Remove the call from the queue
+    } else {
+        printf("No calls to process.\n");
+    }
+}
+
+void displayRemainingCalls(struct CallQueue *q) {
+    if (!isEmpty(q)) {
+        printf("Remaining Calls: ");
+        for (int i = q->front; i <= q->rear; i++) {
+            printf("%d from %s ", q->calls[i].callID, q->calls[i].customerName);
+        }
+        printf("\n");
+    } else {
+        printf("No remaining calls.\n");
+    }
+}
+
+int main() {
+    struct CallQueue queue;
+    initQueue(&queue);
+
+    addCall(&queue, 101, "Alice");
+    addCall(&queue, 102, "Bob");
+    processCall(&queue);
+
+    displayRemainingCalls(&queue);
+
+    return 0;
+}
+
+
+2.
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_PASSENGERS 2    
+#define WAITLIST_LIMIT 5    
+struct Passenger {
+    int passengerID;
+    char name[50];
+};
+
+struct RailwayReservationSystem {
+    struct Passenger bookings[MAX_PASSENGERS];
+    struct Passenger waitingList[WAITLIST_LIMIT];
+    int bookedCount;  // Tracks number of confirmed bookings
+    int waitlistCount;  // Tracks number of passengers in waiting list
+};
+void initSystem(struct RailwayReservationSystem *system) {
+    system->bookedCount = 0;
+    system->waitlistCount = 0;
+}
+
+void addReservation(struct RailwayReservationSystem *system, int passengerID, const char *name) {
+    if (system->bookedCount < MAX_PASSENGERS) {
+        system->bookings[system->bookedCount].passengerID = passengerID;
+        strncpy(system->bookings[system->bookedCount].name, name, sizeof(system->bookings[system->bookedCount].name) - 1);
+        system->bookings[system->bookedCount].name[sizeof(system->bookings[system->bookedCount].name) - 1] = '\0';
+        printf("Booking Confirmed: Passenger %d (%s)\n", passengerID, name);
+        system->bookedCount++;
+    } else if (system->waitlistCount < WAITLIST_LIMIT) {
+        system->waitingList[system->waitlistCount].passengerID = passengerID;
+        strncpy(system->waitingList[system->waitlistCount].name, name, sizeof(system->waitingList[system->waitlistCount].name) - 1);
+        system->waitingList[system->waitlistCount].name[sizeof(system->waitingList[system->waitlistCount].name) - 1] = '\0';
+        printf("Waiting List: Passenger %d (%s)\n", passengerID, name);
+        system->waitlistCount++;
+    } else {
+        printf("Sorry, no more seats available, and the waiting list is full.\n");
+    }
+}
+
+void displayWaitingList(struct RailwayReservationSystem *system) {
+    if (system->waitlistCount > 0) {
+        printf("Waiting List:\n");
+        for (int i = 0; i < system->waitlistCount; i++) {
+            printf("Passenger %d (%s)\n", system->waitingList[i].passengerID, system->waitingList[i].name);
+        }
+    } else {
+        printf("No passengers in the waiting list.\n");
+    }
+}
+
+int main() {
+    struct RailwayReservationSystem system;
+    initSystem(&system);
+    addReservation(&system, 1, "Alice");
+    addReservation(&system, 2, "Bob");
+
+    addReservation(&system, 3, "Charlie");
+    addReservation(&system, 4, "David");
+    addReservation(&system, 5, "Eva");
+
+    displayWaitingList(&system);
+
+    return 0;
+}
+
+3.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Patient {
+    int patientID;
+    char name[50];
+    struct Patient *next;
+    struct Patient *prev;
+};
+struct Hospital {
+    struct Patient *head;
+    struct Patient *tail;
+};
+
+void initHospital(struct Hospital *hospital) {
+    hospital->head = NULL;
+    hospital->tail = NULL;
+}
+struct Patient* createPatient(int patientID, const char *name) {
+    struct Patient *newPatient = (struct Patient*)malloc(sizeof(struct Patient));
+    newPatient->patientID = patientID;
+    strncpy(newPatient->name, name, sizeof(newPatient->name) - 1);
+    newPatient->name[sizeof(newPatient->name) - 1] = '\0';
+    newPatient->next = NULL;
+    newPatient->prev = NULL;
+    return newPatient;
+}
+
+void admitPatient(struct Hospital *hospital, int patientID, const char *name) {
+    struct Patient *newPatient = createPatient(patientID, name);
+    if (hospital->head == NULL) {
+        hospital->head = newPatient;
+        hospital->tail = newPatient;
+    } else {
+        hospital->tail->next = newPatient;
+        newPatient->prev = hospital->tail;
+        hospital->tail = newPatient;
+    }
+    printf("New Patient Admitted: %s (ID %d)\n", name, patientID);
+}
+
+void dischargePatient(struct Hospital *hospital, int patientID) {
+    struct Patient *current = hospital->head;
+    while (current != NULL) {
+        if (current->patientID == patientID) {
+            if (current->prev != NULL) {
+                current->prev->next = current->next;
+            } else {
+                hospital->head = current->next; // Remove from head
+            }
+            if (current->next != NULL) {
+                current->next->prev = current->prev;
+            } else {
+                hospital->tail = current->prev; // Remove from tail
+            }
+            free(current);
+            printf("Discharging: Patient with ID %d\n", patientID);
+            return;
+        }
+        current = current->next;
+    }
+    printf("Patient with ID %d not found.\n", patientID);
+}
+
+void displayPatients(struct Hospital *hospital) {
+    struct Patient *current = hospital->head;
+    if (current == NULL) {
+        printf("No patients in the hospital.\n");
+        return;
+    }
+
+    printf("Remaining Patients: ");
+    while (current != NULL) {
+        printf("%s (ID %d) ", current->name, current->patientID);
+        current = current->next;
+        if (current != NULL) {
+            printf("↔ ");
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    struct Hospital hospital;
+    initHospital(&hospital);
+
+    admitPatient(&hospital, 201, "John");
+    admitPatient(&hospital, 202, "Mary");
+    admitPatient(&hospital, 203, "David");
+
+    displayPatients(&hospital);
+    dischargePatient(&hospital, 202);
+
+    displayPatients(&hospital);
+
+    return 0;
+}
